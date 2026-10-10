@@ -30,5 +30,8 @@ void opcontrol() {
     pros::lcd::initialize();
     chassis.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
     pros::Task driveTask(drive, NULL, "Drive Task");
-    pros::delay(200);
+    pros::Task dr4bControlTask(dr4bControl, nullptr, "DR4B Control");
+    while (true) {
+        pros::delay(20);
+    }
 }

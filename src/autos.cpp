@@ -1,4 +1,3 @@
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "main.h"
-#include "autos.h"
-
+#include "robotDecimator/autos.h"

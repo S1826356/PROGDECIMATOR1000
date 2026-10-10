@@ -1,0 +1,104 @@
+#include "main.h"
+#include "lemlib/api.hpp"
+#include "robotDecimator/functions.h"
+#include "robotDecimator/constants.h"
+
+#include <cstdint>
+
+double targetRateDegreesPerSecond = 90.0;
+double maximumTargetDegrees = 360.0;
+double kP = 18.0;
+double kI = 0.02;
+double kD = 0.6;
+double maximumIntegral = 500.0;
+double maximumVoltage = 12000.0;
+
+double safety(double value, double lower, double upper) {
+    if (value < lower) return lower;
+    if (value > upper) return upper;
+    return value;
+}
+
+void dr4bControl(void* param) {
+
+//LIFT GOTTA BE AT THE BOTTOM OR ELSE WE"RE RUINED!!!!
+//also this zeroes the position
+    if (rLiftMotor.tare_position() == PROS_ERR ||
+        lLiftMotor.tare_position() == PROS_ERR){
+        rLiftMotor.move_voltage(0);
+        lLiftMotor.move_voltage(0);
+        pros::lcd::print(0, "Lift encoder zeroing failed");
+        return;
+    }
+
+    targetPosition = 0.0;
+    double leftInt = 0.0;
+    double rightInt = 0.0;
+    double prevLeftPos = 0.0;
+    double prevRightPos = 0.0;
+    double dt = 0.01;
+
+    while (true) {
+        bool raise = controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1);
+        bool lower = controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1);
+        int targetDirection = 0;
+        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
+          targetDirection = 1; //its going up up up
+        }
+        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+          targetDirection = -1; //its going down down down
+        }
+        
+        //safety net, if it goes above it returns the maximum, it it goes below it returns the minimum
+        targetPosition = safety(
+            targetPosition + targetDirection * targetRateDegreesPerSecond * dt,
+            0.0,
+            maximumTargetDegrees
+        );
+
+        double leftPos = lLiftMotor.get_position();
+        double rightPos = rLiftMotor.get_position();
+        double leftError = targetPosition - leftPos;
+        double rightError = targetPosition - rightPos;
+        double leftVelocity = (leftPos - prevLeftPos) / dt;
+        double rightVelocity = (rightPos - prevRightPos) / dt;
+
+
+        //in case lift gets stuck
+        double leftMayInt = safety(leftInt + leftError * dt, -maximumIntegral, maximumIntegral);
+        double rightMayInt = safety(rightInt + rightError * dt, -maximumIntegral, maximumIntegral);
+
+        double leftMayOutput = kP * leftError + kI * leftMayInt - kD * leftVelocity;
+        double rightMayOutput = kP * rightError + kI * rightMayInt - kD * rightVelocity;
+
+        if ((leftMayOutput <= maximumVoltage && leftMayOutput >= -maximumVoltage) ||
+            (leftMayOutput > maximumVoltage && leftError < 0.0) ||
+            (leftMayOutput < -maximumVoltage && leftError > 0.0)) {
+            leftInt = leftMayInt;
+        }
+        if ((rightMayOutput <= maximumVoltage && rightMayOutput >= -maximumVoltage) ||
+            (rightMayOutput > maximumVoltage && rightError < 0.0) ||
+            (rightMayOutput < -maximumVoltage && rightError > 0.0)) {
+            rightInt = rightMayInt;
+        }
+        //end here, the above is just in case it gets stuck and shoots up after
+
+        double leftOutput = safety(
+            kP * leftError + kI * leftInt - kD * leftVelocity,
+            -maximumVoltage,
+            maximumVoltage
+        );
+        double rightOutput = safety(
+            kP * rightError + kI * rightInt - kD * rightVelocity,
+            -maximumVoltage,
+            maximumVoltage
+        );
+
+        rLiftMotor.move_voltage(static_cast<std::int32_t>(leftOutput));
+        lLiftMotor.move_voltage(static_cast<std::int32_t>(rightOutput));
+
+        prevLeftPos = leftPos;
+        prevRightPos = rightPos;
+        pros::delay(10);
+    }
+}

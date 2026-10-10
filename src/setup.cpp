@@ -1,7 +1,7 @@
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "robotDecimator/setup.h"
 #include "main.h"
-#include "constants.h"
+#include "robotDecimator/constants.h"
 
 lemlib::Drivetrain drivetrain(&left_motors,
                               &right_motors,
