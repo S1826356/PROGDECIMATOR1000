@@ -8,4 +8,6 @@ extern pros::Controller controller;
 extern pros::Imu imu;
 extern pros::Motor rLiftMotor;
 extern pros::Motor lLiftMotor;
+extern pros::adi::Port claw;
+
 extern double targetPosition;

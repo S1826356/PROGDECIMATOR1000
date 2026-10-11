@@ -2,16 +2,30 @@
 #include "lemlib/api.hpp"
 #include "robotDecimator/functions.h"
 #include "robotDecimator/constants.h"
+#include "robotDecimator/setup.h"
 
 #include <cstdint>
 
 double targetRateDegreesPerSecond = 90.0;
-double maximumTargetDegrees = 360.0;
+double maximumTargetDegrees = 1100.0;
 double kP = 18.0;
 double kI = 0.02;
 double kD = 0.6;
 double maximumIntegral = 500.0;
 double maximumVoltage = 12000.0;
+
+void drive(void* param) {
+    while (true) {
+        double forward = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+        double turn = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+        // feed directly to chassis arcade (LEMLib handles scaling)
+        chassis.arcade(forward, turn);
+        pros::delay(20);
+    }
+    // stop chassis on exit
+    left_motors.move(0);
+    right_motors.move(0);
+}
 
 double safety(double value, double lower, double upper) {
     if (value < lower) return lower;
@@ -23,7 +37,7 @@ void dr4bControl(void* param) {
 
 //LIFT GOTTA BE AT THE BOTTOM OR ELSE WE"RE RUINED!!!!
 //also this zeroes the position
-    if (rLiftMotor.tare_position() == PROS_ERR ||
+if (rLiftMotor.tare_position() == PROS_ERR ||
         lLiftMotor.tare_position() == PROS_ERR){
         rLiftMotor.move_voltage(0);
         lLiftMotor.move_voltage(0);
@@ -99,6 +113,34 @@ void dr4bControl(void* param) {
 
         prevLeftPos = leftPos;
         prevRightPos = rightPos;
-        pros::delay(10);
-    }
+
+        /*
+        while(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
+            rLiftMotor.move(50);
+            lLiftMotor.move(50);
+        }
+
+        while(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+            rLiftMotor.move(-50);
+            lLiftMotor.move(-50);
+        }
+        //moto gambaru lydia
+        rLiftMotor.move(0);
+        lLiftMotor.move(0);
+        pros::delay(10);*/
 }
+}
+
+void toggleClaw(void* param){
+    bool claw_engaged = false;
+    while(true){
+        if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
+            pros::lcd::print(2, "i hate this");
+            claw_engaged = !claw_engaged;
+            claw.set_value(claw_engaged);
+            pros::lcd::print(3, "Claw Engaged: %s", claw_engaged ? "true" : "false");
+            pros::delay(10);
+        }
+        pros::delay(100);
+        }
+    }
