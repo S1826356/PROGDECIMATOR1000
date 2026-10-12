@@ -6,9 +6,9 @@
 
 #include <cstdint>
 
-double targetRateDegreesPerSecond = 90.0;
-double maximumTargetDegrees = 1100.0;
-double kP = 18.0;
+double targetRateDegreesPerSecond = 450.0; //90 at first
+double maximumTargetDegrees = 1000.0;
+double kP = 80; //18 at firsrt
 double kI = 0.02;
 double kD = 0.6;
 double maximumIntegral = 500.0;
@@ -50,11 +50,9 @@ if (rLiftMotor.tare_position() == PROS_ERR ||
     double rightInt = 0.0;
     double prevLeftPos = 0.0;
     double prevRightPos = 0.0;
-    double dt = 0.01;
+    double dt = 0.01; //dt is in seconds, so this is 10ms
 
     while (true) {
-        bool raise = controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1);
-        bool lower = controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1);
         int targetDirection = 0;
         if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
           targetDirection = 1; //its going up up up
@@ -62,7 +60,6 @@ if (rLiftMotor.tare_position() == PROS_ERR ||
         if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
           targetDirection = -1; //its going down down down
         }
-        
         //safety net, if it goes above it returns the maximum, it it goes below it returns the minimum
         targetPosition = safety(
             targetPosition + targetDirection * targetRateDegreesPerSecond * dt,
@@ -77,8 +74,7 @@ if (rLiftMotor.tare_position() == PROS_ERR ||
         double leftVelocity = (leftPos - prevLeftPos) / dt;
         double rightVelocity = (rightPos - prevRightPos) / dt;
 
-
-        //in case lift gets stuck
+      //in case lift gets stuck
         double leftMayInt = safety(leftInt + leftError * dt, -maximumIntegral, maximumIntegral);
         double rightMayInt = safety(rightInt + rightError * dt, -maximumIntegral, maximumIntegral);
 
@@ -108,12 +104,12 @@ if (rLiftMotor.tare_position() == PROS_ERR ||
             maximumVoltage
         );
 
-        rLiftMotor.move_voltage(static_cast<std::int32_t>(leftOutput));
-        lLiftMotor.move_voltage(static_cast<std::int32_t>(rightOutput));
+        rLiftMotor.move_voltage(static_cast<std::int32_t>(rightOutput));
+        lLiftMotor.move_voltage(static_cast<std::int32_t>(leftOutput));
 
         prevLeftPos = leftPos;
         prevRightPos = rightPos;
-
+        pros::delay(dt*1000);
         /*
         while(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
             rLiftMotor.move(50);
@@ -144,3 +140,6 @@ void toggleClaw(void* param){
         pros::delay(100);
         }
     }
+
+
+    

@@ -17,9 +17,9 @@ void opcontrol() {
     chassis.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
     pros::delay(200);
 
+    pros::Task driveTask(drive, nullptr, "Drive Task");
     pros::Task dr4bControlTask(dr4bControl, nullptr, "DR4B Control");
     pros::Task toggleClawTask(toggleClaw, nullptr, "Toggle Claw");
-    pros::Task driveTask(drive, nullptr, "Drive Task");
 
     while (true) {
         pros::delay(20);
