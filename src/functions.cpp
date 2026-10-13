@@ -54,26 +54,17 @@ if (rLiftMotor.tare_position() == PROS_ERR ||
 
     while (true) {
         int targetDirection = 0;
-        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
+        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
           targetDirection = 1; //its going up up up
         }
-        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
           targetDirection = -1; //its going down down down
         }
-/*
-        std::uint8_t state = pros::lcd::read_buttons();
-        if (state & LCD_BTN_LEFT) {
-            targetDirection = -1; // Left button = Down
-        } else if (state & LCD_BTN_RIGHT) {
-            targetDirection = 1;  // Right button = Up
-        } else {
-            targetDirection = 0;  // No button pressed = STOP moving target
-        }
-*/
+
         //safety net, if it goes above it returns the maximum, it it goes below it returns the minimum
         targetPosition = safety(
             targetPosition + targetDirection * targetRateDegreesPerSecond * dt,
-            -45.0,
+            -60.0,
             maximumTargetDegrees
         );
 
@@ -85,7 +76,7 @@ if (rLiftMotor.tare_position() == PROS_ERR ||
         double rightVelocity = (rightPos - prevRightPos) / dt;
 
       //in case lift gets stuck
-      
+      //it kinda dont work but whatever i guess
         double leftMayInt = safety(leftInt + leftError * dt, -maximumIntegral, maximumIntegral);
         double rightMayInt = safety(rightInt + rightError * dt, -maximumIntegral, maximumIntegral);
 
@@ -131,7 +122,7 @@ if (rLiftMotor.tare_position() == PROS_ERR ||
             rLiftMotor.move(-50);
             lLiftMotor.move(-50);
         }
-        //moto gambaru lydia
+        //motto ganbare lydia!!!!!!!!!! hahahehehehhehahehaheh
         rLiftMotor.move(0);
         lLiftMotor.move(0);
         pros::delay(10);*/
