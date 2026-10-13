@@ -6,11 +6,11 @@
 
 #include <cstdint>
 
-double targetRateDegreesPerSecond = 450.0; //90 at first
+double targetRateDegreesPerSecond = 800.0; //90 at first
 double maximumTargetDegrees = 1000.0;
-double kP = 80; //18 at firsrt
-double kI = 0.02;
-double kD = 0.6;
+double kP = 45.0; //18 at firsrt
+double kI = 0.08;
+double kD = 1.5;
 double maximumIntegral = 500.0;
 double maximumVoltage = 12000.0;
 
@@ -54,16 +54,26 @@ if (rLiftMotor.tare_position() == PROS_ERR ||
 
     while (true) {
         int targetDirection = 0;
-        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
+        /*if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
           targetDirection = 1; //its going up up up
         }
         if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
           targetDirection = -1; //its going down down down
+        }*/
+
+        std::uint8_t state = pros::lcd::read_buttons();
+        if (state & LCD_BTN_LEFT) {
+            targetDirection = -1; // Left button = Down
+        } else if (state & LCD_BTN_RIGHT) {
+            targetDirection = 1;  // Right button = Up
+        } else {
+            targetDirection = 0;  // No button pressed = STOP moving target
         }
+
         //safety net, if it goes above it returns the maximum, it it goes below it returns the minimum
         targetPosition = safety(
             targetPosition + targetDirection * targetRateDegreesPerSecond * dt,
-            0.0,
+            -60.0,
             maximumTargetDegrees
         );
 
