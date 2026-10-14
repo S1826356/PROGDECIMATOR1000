@@ -1,19 +1,10 @@
 #include "main.h"
 #include "lemlib/api.hpp"
-#include "robotDecimator/functions.h"
 #include "robotDecimator/constants.h"
 #include "robotDecimator/setup.h"
 
 #include <cstdint>
 
-double targetRateDegreesPerSecond = 800.0; //90 at first
-double maximumTargetDegrees = 1000.0;
-double kP = 45.0; //18 at firsrt
-double kI = 0.08;
-double kD = 1.5;
-double maximumIntegral = 500.0;
-double maximumVoltage = 12000.0;
-double dt = 0.01; //dt is in seconds, so this is 10ms
 double leftInt = 0.0;
 double rightInt = 0.0;
 double prevLeftPos = 0.0;
@@ -48,6 +39,9 @@ void matchAuton(void* param){
 //also this zeroes the position
     rLiftMotor.tare_position();
     lLiftMotor.tare_position();
+    autoLiftControl(500);
+    pros::delay(1000);
+
     //motto ganbare lillian
 
 }

@@ -11,6 +11,9 @@ void initialize(){
     pros::delay(20);
 }
 
+void autonomous(){
+    matchAuton(nullptr);
+}
 
 void opcontrol() {
     pros::lcd::initialize();

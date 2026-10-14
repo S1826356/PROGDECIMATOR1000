@@ -6,14 +6,6 @@
 
 #include <cstdint>
 
-double targetRateDegreesPerSecond = 800.0; //90 at first
-double maximumTargetDegrees = 1000.0;
-double kP = 45.0; //18 at firsrt
-double kI = 0.08;
-double kD = 1.5;
-double maximumIntegral = 500.0;
-double maximumVoltage = 12000.0;
-
 void drive(void* param) {
     while (true) {
         double forward = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
