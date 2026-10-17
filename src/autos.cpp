@@ -39,8 +39,17 @@ void matchAuton(void* param){
 //also this zeroes the position
     rLiftMotor.tare_position();
     lLiftMotor.tare_position();
-    autoLiftControl(500);
-    pros::delay(1000);
+    claw_engaged = false; //close claw
+    claw.set_value(claw_engaged);
+    chassis.setPose(0,0,26);
+    //starting is -52.6, -35 in abs coord
+    autoLiftControl(100);
+    chassis.moveToPoint(6.9, 14, 700);
+    pros::delay(200);
+    autoLiftControl(-40);
+    claw_engaged = true; //open claw
+    claw.set_value(claw_engaged);
+
 
     //motto ganbare lillian
 

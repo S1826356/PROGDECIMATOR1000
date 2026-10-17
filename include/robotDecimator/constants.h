@@ -19,3 +19,4 @@ extern double kI;
 extern double kD;
 extern double maximumIntegral;
 extern double maximumVoltage;
+extern bool claw_engaged;

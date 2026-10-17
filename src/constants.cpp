@@ -20,3 +20,4 @@ double kI = 0.08;
 double kD = 1.5;
 double maximumIntegral = 500.0;
 double maximumVoltage = 12000.0;
+bool claw_engaged = false;

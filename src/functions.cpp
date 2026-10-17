@@ -122,7 +122,6 @@ if (rLiftMotor.tare_position() == PROS_ERR ||
 }
 
 void toggleClaw(void* param){
-    bool claw_engaged = false;
     while(true){
         if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
             pros::lcd::print(2, "i hate this");
